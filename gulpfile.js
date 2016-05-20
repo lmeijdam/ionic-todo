@@ -7,6 +7,7 @@ var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
+var karma = require('karma').Server;
 
 var paths = {
   sass: ['./scss/**/*.scss']
@@ -14,9 +15,9 @@ var paths = {
 
 var angularFiles = ['www/js/app/**/*.js'];
 
-gulp.task('default', ['sass']);
+gulp.task('default', ['watch']);
 
-gulp.task('sass', function(done) {
+gulp.task('sass', function (done) {
   gulp.src('./scss/ionic.app.scss')
     .pipe(sass())
     .on('error', sass.logError)
@@ -29,30 +30,38 @@ gulp.task('sass', function(done) {
     .on('end', done);
 });
 
-gulp.task('lint-js', function() {
-    return gulp.src(angularFiles)
-		.pipe(jshint())
-		.pipe(jshint.reporter('jshint-stylish'));
+gulp.task('lint-js', function () {
+  return gulp.src(angularFiles)
+    .pipe(jshint())
+    .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('concat-app', ['lint-js'], function() {
-    return gulp.src(angularFiles)
-		.pipe(concat("app.js"))
-		.pipe(gulp.dest('www/js/'));
+gulp.task('concat-app', ['lint-js'], function () {
+  return gulp.src(angularFiles)
+    .pipe(concat("app.js"))
+    .pipe(gulp.dest('www/js/'));
 });
 
-gulp.task('watch', function() {
+gulp.task('watch', function () {
   gulp.watch(paths.sass, ['sass']);
+  gulp.watch(angularFiles, ['lint-js', 'concat-app']);
 });
 
-gulp.task('install', ['git-check'], function() {
+gulp.task('run-tests', ['concat-app'],function (done) {
+  new karma({
+    configFile: __dirname + '\\karma.conf.js',
+    singleRun: true
+  }, done).start();
+});
+
+gulp.task('install', ['git-check'], function () {
   return bower.commands.install()
-    .on('log', function(data) {
+    .on('log', function (data) {
       gutil.log('bower', gutil.colors.cyan(data.id), data.message);
     });
 });
 
-gulp.task('git-check', function(done) {
+gulp.task('git-check', function (done) {
   if (!sh.which('git')) {
     console.log(
       '  ' + gutil.colors.red('Git is not installed.'),
