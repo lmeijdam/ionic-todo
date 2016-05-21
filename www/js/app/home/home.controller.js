@@ -5,21 +5,25 @@
         .module('lmTodo')
         .controller('HomeController', HomeController);
 
-    HomeController.$inject = [];
-    function HomeController() {
+    HomeController.$inject = ['$state', 'TodoService'];
+    function HomeController($state, TodoService) {
         var vm = this;
-        vm.testFunction = testFunction;
+        vm.todoList = [];
+        
+        vm.activate = activate;
+        vm.openTodo = openTodo;
 
         activate();
-
-        ////////////////
-
+        
         function activate() {
-            // this is the activate function
+            TodoService.getAll().then(function(data){
+                vm.todoList = data;
+            });
         }
-
-        function testFunction() {
-            return "Called";
+        
+        function openTodo(item){         
+            console.log(item);               
+            $state.go('app.details' ,{ todoId: item.id });
         }
     }
 })();
