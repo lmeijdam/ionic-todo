@@ -1,11 +1,11 @@
 describe('HomeController', function () {
 
     var controller,
-        deferredLogin,
-        dinnerServiceMock,
+        todoServiceMock,
         stateMock,
         ionicPopupMock,
-        scope;
+        scope,
+        deferred;
 
     // load the module for our app
     beforeEach(module('lmTodo'));
@@ -17,8 +17,12 @@ describe('HomeController', function () {
     }));
 
     // instantiate the controller and mocks for every test
-    beforeEach(inject(function ($rootScope, $controller) {
+    beforeEach(inject(function ($rootScope, $controller, $injector, $q) {
         scope = $rootScope.$new();
+        deferred = $q.defer();
+        todoServiceMock = {
+            getAll: jasmine.createSpy('getAll').and.returnValue(deferred.promise)
+        };
         //deferredLogin = $q.defer();
 
         // mock dinnerService
@@ -28,7 +32,7 @@ describe('HomeController', function () {
         // };
 
         // mock $state
-        //stateMock = jasmine.createSpyObj('$state spy', ['go']);
+        stateMock = jasmine.createSpyObj('$state spy', ['go']);
 
         // mock $ionicPopup
         //ionicPopupMock = jasmine.createSpyObj('$ionicPopup spy', ['alert']);       
@@ -39,18 +43,66 @@ describe('HomeController', function () {
         // 				'$state': stateMock, 
         // 				'DinnerService': dinnerServiceMock }
         // 			 );
-        controller = $controller('HomeController', {});
+        controller = $controller('HomeController', {
+            'TodoService': todoServiceMock,
+            '$state': stateMock
+        });
         console.log(controller);
     }));
+    // requirements
+    /*
+        1. getting a list of todo's
+        3. tapping the add button will go to state add
+        2. tapping a todo will go to state details with a parameter
+    */
 
+    describe('when activating the homeview', function () {
 
-    describe('when calling the testFunction', function () {
+        beforeEach(inject(function (_$rootScope_) {
+            scope = _$rootScope_;
+            controller.activate();
+        }));
 
-        it('should call the testFunction', function () {
-            expect(controller.testFunction()).toBe("Called");
+        it('should start with an empty list', function () {
+            expect(controller.todoList.length).toBe(0);
+        });
+
+        it('should call the getAll function', function () {
+            expect(todoServiceMock.getAll).toHaveBeenCalled();
+        });
+
+        it('should fill the list if the promise gets resolved', function () {
+            deferred.resolve([1, 2, 3]); // we resolve it with 3 values
+            scope.$digest();
+            expect(controller.todoList.length).toBe(3);
         });
 
     });
+
+    describe('when tapping a todo', function () {
+
+        // beforeEach(inject(function(_$rootScope_) {
+        //     scope = _$rootScope_;
+        //     controller.activate();
+        // }));            
+
+        it('should change the state to app.details', function () {
+            controller.openTodo(fakeTodo);
+            expect(stateMock.go).toHaveBeenCalled();
+        });
+
+        // it('should call the getAll function', function () {
+        //     expect(todoServiceMock.getAll).toHaveBeenCalled();	               
+        // });            
+
+        // it('should fill the list if the promise gets resolved', function () {
+        //     deferred.resolve([1,2,3]); // we resolve it with 3 values
+        //     scope.$digest();
+        //     expect(controller.todoList.length).toBe(3);	               
+        // });      
+
+    });
+
 
     // 	// call doLogin on the controller for every test
     // 	beforeEach(inject(function(_$rootScope_) {
