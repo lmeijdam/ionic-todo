@@ -41,7 +41,18 @@
                     views: {
                         'menuContent': {
                             templateUrl: 'js/app/todo/todo.template.html',
-                            controller: 'TodoDetailsController',
+                            controller: 'TodoController',
+                            controllerAs: 'todo',
+                        }
+                    }
+                })
+
+                .state('app.add', {
+                    url: '/todo',           
+                    views: {
+                        'menuContent': {
+                            templateUrl: 'js/app/todo/todo.template.html',
+                            controller: 'TodoController',
                             controllerAs: 'todo',
                         }
                     }

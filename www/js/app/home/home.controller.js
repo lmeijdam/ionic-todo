@@ -17,13 +17,19 @@
         
         function activate() {
             TodoService.getAll().then(function(data){
+                if(!data) return;
                 vm.todoList = data;
             });
         }
         
-        function openTodo(item){         
-            console.log(item);               
-            $state.go('app.details' ,{ todoId: item.id });
+        function openTodo(item){     
+            if(item){                
+                $state.go('app.details' ,{ todoId: item.id });
+            }
+            else {                
+                $state.go('app.add');
+            }
+                      
         }
     }
 })();
