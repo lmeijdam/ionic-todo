@@ -9,3 +9,6 @@ www/lib/angular-sanitize
 www/lib/angular
 www/lib/angular-ui-router
 www/lib/angular-animate
+www/lib/ngstorage
+www/coverage
+www/js/app.js
