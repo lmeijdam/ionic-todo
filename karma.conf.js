@@ -18,6 +18,7 @@ module.exports = function(config) {
       'www/lib/ionic/js/ionic.bundle.js',
       'www/js/*.js',
       'www/lib/angular-mocks/angular-mocks.js',
+      'www/lib/ngstorage/ngStorage.js',
       'www/specs/**/*.js'
     ],
 
@@ -30,14 +31,21 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-    },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress','coverage'],
+    
+    preprocessors: {
+      'www/js/*.js' : ['coverage']
+    },
+
+    coverageReporter: {
+      type: 'html',
+      dir: 'www/coverage/'
+    },
 
 
     // web server port
