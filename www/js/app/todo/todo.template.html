@@ -1,5 +1,25 @@
 <ion-view view-title="Todo">
-  <ion-content>
-    <h1>{{todo.todoItem.title}}</h1>
+  <ion-content padding="true">
+    <div class="list">
+      <label class="item item-input item-stacked-label">
+          <span class="input-label">Todo</span>
+          <input name="inpput-title" type="text" placeholder="Enter todo here" ng-model="todo.todoItem.title"
+          ng-change="todo.titleChanged()" >
+        </label>
+        
+      <ion-toggle ng-model="todo.workToggled" toggle-class="toggle-energized">Work related</ion-toggle>
+
+
+    </div>
+
+    <button class="button button-balanced button-block" ng-click="todo.saveTodo()" ng-disabled="!todo.canSave">
+      Save
+    </button>
+
+    <button class="button button-assertive button-block" ng-click="todo.deleteTodo()" ng-show="todo.canRemove">
+      Remove
+    </button>
+
+
   </ion-content>
 </ion-view>
