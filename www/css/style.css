@@ -5,6 +5,8 @@
     position: fixed !important;
     z-index: 12 !important;
     padding: 5px !important;
+    height: 60px !important;
+    width: 60px !important;
     bottom: 15px !important;
     right: 15px !important;
     text-align: center !important;
