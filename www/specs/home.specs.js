@@ -47,7 +47,6 @@ describe('HomeController', function () {
             'TodoService': todoServiceMock,
             '$state': stateMock
         });
-        console.log(controller);
     }));
     // requirements
     /*
