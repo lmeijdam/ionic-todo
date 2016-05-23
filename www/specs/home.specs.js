@@ -80,26 +80,18 @@ describe('HomeController', function () {
     });
 
     describe('when tapping a todo', function () {
-
-        // beforeEach(inject(function(_$rootScope_) {
-        //     scope = _$rootScope_;
-        //     controller.activate();
-        // }));            
-
         it('should change the state to app.details', function () {
             controller.openTodo(fakeTodo);
             expect(stateMock.go).toHaveBeenCalled();
-        });
+        });   
 
-        // it('should call the getAll function', function () {
-        //     expect(todoServiceMock.getAll).toHaveBeenCalled();	               
-        // });            
+    });
 
-        // it('should fill the list if the promise gets resolved', function () {
-        //     deferred.resolve([1,2,3]); // we resolve it with 3 values
-        //     scope.$digest();
-        //     expect(controller.todoList.length).toBe(3);	               
-        // });      
+    describe('when tapping the + button', function () {          
+        it('should change the state to app.add', function () {
+            controller.openTodo(null);
+            expect(stateMock.go).toHaveBeenCalledWith('app.add');
+        });   
 
     });
 
