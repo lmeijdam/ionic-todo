@@ -1,1 +1,12 @@
 /* Empty. Add your own CSS if you like */
+
+.floating-round {
+    border-radius: 50% !important;
+    position: fixed !important;
+    z-index: 12 !important;
+    padding: 5px !important;
+    bottom: 15px !important;
+    right: 15px !important;
+    text-align: center !important;
+    box-shadow: 1px 2px 2px 0 rgba(0, 0, 0, 0.26) !important;
+}

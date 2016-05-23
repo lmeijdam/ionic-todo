@@ -1,12 +1,16 @@
-<ion-view view-title="lmTodo">
+<ion-view view-title="">
   <ion-content>
-    <ion-list>
+        <ion-list>
       <ion-item ng-repeat="todo in home.todoList" ng-click="home.openTodo(todo)">
           {{todo.title}}
       </ion-item>
       
     </ion-list>
-  </ion-content>
+
+    
+
+  </ion-content>    
+    <button class="button button-balanced  floating-round icon ion-plus" ng-click="home.openTodo(null)"></button>
 </ion-view>
 
  <!--href="#/app/playlists/{{playlist.id}}"-->
