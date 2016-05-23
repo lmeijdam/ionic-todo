@@ -1,8 +1,9 @@
-(function () {  
+(function () {
   'use strict';
 
   angular.module('lmTodo', [
-    'ionic'
+    'ionic',
+    'ngStorage'
   ]).run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
       if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -20,5 +21,5 @@
       }
     });
   });
-  
+
 })();
