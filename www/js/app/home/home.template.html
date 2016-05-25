@@ -1,16 +1,23 @@
 <ion-view view-title="">
   <ion-content>
-        <ion-list>
-      <ion-item ng-repeat="todo in home.todoList" ng-click="home.openTodo(todo)">
-          {{todo.title}}
+    <ion-list can-swipe="true">
+      <ion-item ng-repeat="todo in home.todoList" ng-click="home.openTodo(todo)" class="item-remove-animate todo">
+        <ion-option-button class="button-energized" ng-click="home.markDone(todo)">
+          Done
+        </ion-option-button>
+        <span class="item-icon-left">
+           <i ng-if="todo.rel == 'private'" class="icon ion-home assertive round-icon private"></i>
+           <i ng-if="todo.rel == 'work'" class="icon ion-briefcase positive round-icon work"></i>
+           </span> {{todo.title}}
+
       </ion-item>
-      
+
     </ion-list>
 
-    
 
-  </ion-content>    
-    <button class="button button-balanced  floating-round icon ion-plus" ng-click="home.openTodo(null)"></button>
+
+  </ion-content>
+  <button class="button button-balanced floating-round icon ion-plus" ng-click="home.openTodo(null)"></button>
 </ion-view>
 
- <!--href="#/app/playlists/{{playlist.id}}"-->
+<!--href="#/app/playlists/{{playlist.id}}"-->
