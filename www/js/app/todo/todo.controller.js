@@ -12,6 +12,7 @@
         vm.saveTodo = saveTodo;
         vm.deleteTodo = deleteTodo;
         vm.titleChanged = titleChanged;
+        vm.activate = activate;
 
         vm.workToggled = false;
         vm.canRemove = false;
@@ -22,6 +23,7 @@
         function activate() {
             if ($stateParams.todoId) {
                 vm.todoItem = TodoService.getSingleById($stateParams.todoId);
+                if(vm.todoItem.id !== $stateParams.todoId) return;
                 vm.workToggled = vm.todoItem.rel === 'work';
                 vm.canRemove = true;
                 titleChanged();
@@ -29,29 +31,24 @@
         }
 
         function saveTodo() {
-            if (!vm.todoItem.title) return;
+            if(!vm.canSave || !vm.todoItem.title) return;
 
             vm.todoItem.rel = (vm.workToggled) ? "work" : "private";
             TodoService.save(vm.todoItem).then(function () {
-                $state.transitionTo("app.home");
+                $state.go("app.home");
             });
         }
 
         function deleteTodo() {
-            console.log(vm.todoItem);
-            if (!vm.todoItem.id) return; // is not yet saved
+            if (!vm.canRemove || !vm.todoItem.id) return; // id gets defined when item is saved
 
             TodoService.remove(vm.todoItem).then(function () {
-                $state.transitionTo("app.home");
+                $state.go("app.home");
             });
         }
 
         function titleChanged() {
-            console.log("Title Changed");
-            $timeout(function () {
-                vm.canSave = vm.todoItem.title.length >= 3;
-                console.log(vm.canSave);
-            }, 0);
+            vm.canSave = vm.todoItem.title.length >= 3;
         }
     }
 })();
