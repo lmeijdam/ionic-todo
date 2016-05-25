@@ -1,4 +1,4 @@
-describe('HomeController', function () {
+describe('Home', function () {
 
     var controller,
         todoServiceMock,
@@ -21,17 +21,10 @@ describe('HomeController', function () {
         scope = $rootScope.$new();
         deferred = $q.defer();
         todoServiceMock = {
-            getAll: jasmine.createSpy('getAll').and.returnValue(deferred.promise)
+            getAll: jasmine.createSpy('getAll').and.returnValue(deferred.promise),
+            remove: jasmine.createSpy('remove').and.returnValue(deferred.promise)
         };
-        //deferredLogin = $q.defer();
 
-        // mock dinnerService
-        // dinnerServiceMock = {
-        // 	login: jasmine.createSpy('login spy')
-        // 				  .and.returnValue(deferredLogin.promise)			
-        // };
-
-        // mock $state
         stateMock = jasmine.createSpyObj('$state spy', ['go']);
 
         // mock $ionicPopup
@@ -43,17 +36,12 @@ describe('HomeController', function () {
         // 				'$state': stateMock, 
         // 				'DinnerService': dinnerServiceMock }
         // 			 );
+        
         controller = $controller('HomeController', {
             'TodoService': todoServiceMock,
             '$state': stateMock
         });
     }));
-    // requirements
-    /*
-        1. getting a list of todo's
-        3. tapping the add button will go to state add
-        2. tapping a todo will go to state details with a parameter
-    */
 
     describe('when activating the homeview', function () {
 
@@ -70,10 +58,16 @@ describe('HomeController', function () {
             expect(todoServiceMock.getAll).toHaveBeenCalled();
         });
 
-        it('should fill the list if the promise gets resolved', function () {
+        it('should fill the list if the todoServiceMock.getAll() gets resolved', function () {
             deferred.resolve([1, 2, 3]); // we resolve it with 3 values
             scope.$digest();
             expect(controller.todoList.length).toBe(3);
+        });
+
+        it('should NOT fill the list if the todoServiceMock.getAll() gets resolved with null', function () {
+            deferred.resolve(null); // we resolve it with 3 values
+            scope.$digest();
+            expect(controller.todoList.length).toBe(0);
         });
 
     });
@@ -82,15 +76,39 @@ describe('HomeController', function () {
         it('should change the state to app.details', function () {
             controller.openTodo(fakeTodo);
             expect(stateMock.go).toHaveBeenCalled();
-        });   
+        });
 
     });
 
-    describe('when tapping the + button', function () {          
+    describe('when tapping the + button', function () {
         it('should change the state to app.add', function () {
             controller.openTodo(null);
             expect(stateMock.go).toHaveBeenCalledWith('app.add');
-        });   
+        });
+
+    });
+
+    describe('when marking a todo as "Done"', function () {
+        
+        it('should call the remove function', function () {
+            controller.markDone(fakeTodo);           
+            expect(todoServiceMock.remove).toHaveBeenCalled();
+        });
+        // WHY ? error: .remove(...).when is not a function ... TYPO then/when
+        
+        it('should fill the list if the todoServiceMock.remove() gets resolved', function () {
+            controller.markDone(fakeTodo);        
+            deferred.resolve([1, 2, 3]); // we resolve it with 3 values
+            scope.$digest();
+            expect(controller.todoList.length).toBe(3);
+        });
+        
+        it('should leave the list when remove will return null', function () {
+            controller.markDone(fakeTodo);        
+            deferred.resolve(null); // we resolve it with 3 values
+            scope.$digest();
+            expect(controller.todoList.length).toBe(0);
+        });
 
     });
 
