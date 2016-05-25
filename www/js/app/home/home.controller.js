@@ -12,6 +12,7 @@
         
         vm.activate = activate;
         vm.openTodo = openTodo;
+        vm.markDone = markDone;
 
         activate();
         
@@ -28,8 +29,14 @@
             }
             else {                
                 $state.go('app.add');
-            }
-                      
+            }                      
+        }
+        
+        function markDone(todo){
+            TodoService.remove(todo).then(function(data){
+                if(!data) return;
+                vm.todoList = data;
+            });
         }
     }
 })();
