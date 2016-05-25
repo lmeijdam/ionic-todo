@@ -17,15 +17,15 @@
 
         ////////////////
         function get(key){
-            return $localStorage.key;
+            return $localStorage[key];
         }
               
         function set(key, value){
-            $localStorage.key = value;
+            $localStorage[key] = value;
         }    
         
         function remove(key){
-            delete $localStorage.key;
+            delete $localStorage[key];
         }       
     }
 })();
