@@ -15,35 +15,35 @@ describe('Todo', function () {
         $provide.value('$ionicTemplateCache', function () { });
         $urlRouterProvider.deferIntercept();
     }));
-    
+
     beforeEach(inject(function ($rootScope, $controller, $injector, $q) {
-            scope = $rootScope.$new();
-            deferred = $q.defer();
-            todoServiceMock = {
-                getAll: jasmine.createSpy('getAll').and.returnValue(deferred.promise),
-                getSingleById: jasmine.createSpy('getSingleById').and.returnValue({
-                    id: 123,
-                    title: "test",
-                    rel: "work"
-                }),
-                save: jasmine.createSpy('save').and.returnValue(deferred.promise),
-                remove: jasmine.createSpy('remove').and.returnValue(deferred.promise)
-            };
+        scope = $rootScope.$new();
+        deferred = $q.defer();
+        todoServiceMock = {
+            getAll: jasmine.createSpy('getAll').and.returnValue(deferred.promise),
+            getSingleById: jasmine.createSpy('getSingleById').and.returnValue({
+                id: 123,
+                title: "test",
+                rel: "work"
+            }),
+            save: jasmine.createSpy('save').and.returnValue(deferred.promise),
+            remove: jasmine.createSpy('remove').and.returnValue(deferred.promise)
+        };
 
-            // mock $state
-            stateMock = {
-                go: jasmine.createSpy('go')
-            }
+        // mock $state
+        stateMock = {
+            go: jasmine.createSpy('go')
+        }
 
-            // fake stateParams
-            stateParams = {};
+        // fake stateParams
+        stateParams = {};
 
-            controller = $controller('TodoController', {
-                '$state': stateMock,
-                '$stateParams': stateParams,
-                'TodoService': todoServiceMock,
-            });
-        }));
+        controller = $controller('TodoController', {
+            '$state': stateMock,
+            '$stateParams': stateParams,
+            'TodoService': todoServiceMock,
+        });
+    }));
 
     describe('Adding', function () {
 
@@ -92,7 +92,7 @@ describe('Todo', function () {
             it('should update the vm.todoItem', function () {
                 controller.todoItem = todoServiceMock.getSingleById();
                 expect(stateParams.todoId).toEqual(controller.todoItem.id);
-            });            
+            });
         });
 
         describe('when changing the title', function () {
@@ -180,6 +180,31 @@ describe('Todo', function () {
 
                 expect(stateMock.go).toHaveBeenCalledWith('app.home');
 
+            });
+
+
+        });
+
+        describe('when removing a todo', function () {
+
+            beforeEach(function () {
+
+                controller.todoItem = fakeTodo;
+                controller.canRemove = true;
+                controller.removeTodo();
+            });
+
+
+            it('should call the remove function of the todoServiceMock ', function () {
+                expect(todoServiceMock.remove).toHaveBeenCalled();
+            });
+
+            it('should change state to "app.home" if removing succeeds', function () {
+                expect(todoServiceMock.remove).toHaveBeenCalled();
+
+                deferred.resolve(null);
+                scope.$digest();
+                expect(stateMock.go).toHaveBeenCalledWith('app.home');
             });
 
 

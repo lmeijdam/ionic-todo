@@ -10,7 +10,7 @@
         var vm = this;
         vm.todoItem = {};
         vm.saveTodo = saveTodo;
-        vm.deleteTodo = deleteTodo;
+        vm.removeTodo = removeTodo;
         vm.titleChanged = titleChanged;
         vm.activate = activate;
 
@@ -39,7 +39,7 @@
             });
         }
 
-        function deleteTodo() {
+        function removeTodo() {
             if (!vm.canRemove || !vm.todoItem.id) return; // id gets defined when item is saved
 
             TodoService.remove(vm.todoItem).then(function () {
