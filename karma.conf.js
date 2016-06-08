@@ -24,6 +24,10 @@ module.exports = function(config) {
       // app      
       'www/js/app.js',
       'www/specs/home.specs.js',
+      'www/specs/todo.specs.js',
+      'www/specs/todo.service.specs.js',
+      'www/specs/utilities.service.specs.js',
+      'www/specs/storage.service.specs.js',
       'www/specs/mockingData.js'
     ],
 
