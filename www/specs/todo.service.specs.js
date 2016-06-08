@@ -18,7 +18,7 @@ describe('TodoService', function () {
             set: function (key, value) { },
             remove: function (key) { }
         };
-        
+
         firebaseServiceMock = {
             initialize: function () { },
             get: function () { },
@@ -57,6 +57,12 @@ describe('TodoService', function () {
             todoService.save({});
             expect(firebaseServiceMock.add).toHaveBeenCalled();
         });
+        
+        it('should call the firebaseServiceMock.save function when a todo already exists', function () {
+            spyOn(firebaseServiceMock, 'save');
+            todoService.save(fakeTodo);
+            expect(firebaseServiceMock.save).toHaveBeenCalled();
+        });
 
     });
 
@@ -68,5 +74,5 @@ describe('TodoService', function () {
             expect(firebaseServiceMock.remove).toHaveBeenCalled();
         });
 
-    }); 
+    });
 });

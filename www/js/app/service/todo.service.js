@@ -10,6 +10,7 @@
         var service = {
             getAll: getAll,
             getSingleById: getSingleById,
+            getIndexById: getIndexById,
             save: save,
             remove: remove
         };

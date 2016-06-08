@@ -163,8 +163,8 @@
         .module('lmTodo')
         .factory('FirebaseService', FirebaseService);
 
-    FirebaseService.$inject = ['$rootScope', '$firebaseAuth', '$firebaseObject', '$firebaseArray', 'StorageService'];
-    function FirebaseService($rootscope, $firebaseAuth, $firebaseObject, $firebaseArray, StorageService) {
+    FirebaseService.$inject = ['$firebaseAuth', '$firebaseArray', 'StorageService'];
+    function FirebaseService($firebaseAuth, $firebaseArray, StorageService) {
         var ref = {};
         var objects = {};
         var enabled = false;
@@ -260,6 +260,7 @@
         var service = {
             getAll: getAll,
             getSingleById: getSingleById,
+            getIndexById: getIndexById,
             save: save,
             remove: remove
         };
