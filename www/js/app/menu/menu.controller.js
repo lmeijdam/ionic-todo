@@ -15,6 +15,6 @@
 
         function activate() {
             // this is the activate function
-        }
+        } 
     }
-})();
+})(); 

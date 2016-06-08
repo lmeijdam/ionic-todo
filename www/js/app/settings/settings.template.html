@@ -1,4 +1,26 @@
-<ion-view view-title="Settings">
+<ion-view view-title="">
   <ion-content>
+
+
+    <ion-toggle ng-model="settings.firebaseToggled" toggle-class="toggle-energized">Use Firebase</ion-toggle>
+
+    <div class="list list-inset" ng-show="settings.firebaseToggled">
+      <label class="item item-input">
+       <input type="text" placeholder="Firebase" ng-model="settings.firebaseObj.source">
+      </label>
+      <label class="item item-input">
+        <input type="text" placeholder="Email" ng-model="settings.firebaseObj.email">
+      </label>
+      <label class="item item-input">
+        <input type="password" placeholder="Password" ng-model="settings.firebaseObj.password">
+      </label>
+    </div>
+    
+        <div class="row">
+        <button class="button button-balanced button-block" ng-click="settings.save()">
+        Save
+      </button>
+    </div>
+
   </ion-content>
 </ion-view>

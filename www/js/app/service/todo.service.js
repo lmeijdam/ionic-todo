@@ -5,8 +5,8 @@
         .module('lmTodo')
         .factory('TodoService', TodoService);
 
-    TodoService.$inject = ['$q', 'UtilitiesService', 'StorageService'];
-    function TodoService($q, UtilitiesService, StorageService) {
+    TodoService.$inject = ['$q', 'UtilitiesService', 'StorageService', 'FirebaseService'];
+    function TodoService($q, UtilitiesService, StorageService, FirebaseService) {
         var service = {
             getAll: getAll,
             getSingleById: getSingleById,
@@ -15,50 +15,49 @@
         };
 
         var todoList = [];
-
         return service;
 
         // retrieving
         function getAll() {
-            var storedList = StorageService.get("list");
-            if (storedList) {
-                todoList = storedList;
-            }
+            var firebaseResult = FirebaseService.get();
+            if (firebaseResult !== null) { // from service
+                todoList = firebaseResult;
+            } 
+            
             return $q.when(todoList);
         }
-
+        
         function getSingleById(id) {
             for (var i = 0; i < todoList.length; i++) {
-                if (todoList[i].id === id) return todoList[i];
+                if (todoList[i].id === id) 
+                    return todoList[i];
             }
         }
 
         function getIndexById(id) {
             for (var i = 0; i < todoList.length; i++) {
-                if (todoList[i].id === id) return i;
+                if (todoList[i].id === id) 
+                    return i;
             }
         }
 
-        // saving
+        // adding/saving
         function save(todo) {
             if (!todo.id) {
-                var uid = UtilitiesService.createGuid();
-                todo.id = uid;
-                todoList.push(todo);
-            }
-            
-            StorageService.set("list", todoList);
-            return $q.when(todoList);
-        }
-        
-        // deletion
-        function remove(todo) {
-            var index = getIndexById(todo.id);
-            if (index > -1) {
-                todoList.splice(index, 1);
+                todo.id = UtilitiesService.createGuid();                
+                FirebaseService.add(todo);
+            } else {
+                FirebaseService.save(todo);
             }
 
-            StorageService.set("list", todoList);
+            return $q.when(todoList);
+        }
+
+        // removing
+        function remove(todo) {
+            var index = getIndexById(todo.id);  
+            FirebaseService.remove(index);
+            
             return $q.when(todoList);
         }
     }

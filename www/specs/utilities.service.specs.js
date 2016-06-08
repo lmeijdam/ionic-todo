@@ -16,6 +16,15 @@ describe('UtilitiesService', function () {
         scope = $rootScope.$new();
         utilitiesService = $injector.get('UtilitiesService');
     }));
+    
+    
+    describe('Initialization', function() {
+        
+        it('should assign the utilitiesService', function() {
+            expect(utilitiesService).not.toBeUndefined();               
+        });
+            
+    });        
 
     describe('when calling createGuid', function () {
 

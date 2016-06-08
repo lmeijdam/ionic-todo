@@ -3,7 +3,8 @@
 
   angular.module('lmTodo', [
     'ionic',
-    'ngStorage'
+    'ngStorage',
+    'firebase'
   ]).run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
       if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -94,32 +95,45 @@
         .module('lmTodo')
         .controller('HomeController', HomeController);
 
-    HomeController.$inject = ['$state', 'TodoService'];
-    function HomeController($state, TodoService) {
+    HomeController.$inject = ['$scope', '$state', 'TodoService']; //
+    function HomeController($scope, $state, TodoService) { //
         var vm = this;
         vm.todoList = [];
         
-        vm.activate = activate;
         vm.openTodo = openTodo;
+        vm.markDone = markDone;
 
         activate();
-        
+
+        // update after updating or navigating
+        // $scope.$on('$stateChangeSuccess',
+        //     function onStateSuccess(event, toState, toParams, fromState) {
+        //         activate();
+        //     }
+        // );
+ 
         function activate() {
-            TodoService.getAll().then(function(data){
-                if(!data) return;
+            vm.todoList = [];
+            TodoService.getAll().then(function (data) {
+                if (!data) return;
+                
                 vm.todoList = data;
             });
-        }
-        
-        function openTodo(item){     
-            if(item){                
-                $state.go('app.details' ,{ todoId: item.id });
-            }
-            else {                
+        } 
+
+        function openTodo(item) {
+            if (item)
+                $state.go('app.details', { todoId: item.id });
+            else 
                 $state.go('app.add');
-            }
-                      
         }
+
+        function markDone(todo) {
+            TodoService.remove(todo).then(function (data) {
+                if (!data) return;
+                vm.todoList = data;
+            });
+        } 
     }
 })();
 (function () {
@@ -135,8 +149,71 @@
 
         activate();
 
+        ////////////////
+
         function activate() {
             // this is the activate function
+        } 
+    }
+})(); 
+(function () {
+    'use strict';
+
+    angular
+        .module('lmTodo')
+        .factory('FirebaseService', FirebaseService);
+
+    FirebaseService.$inject = ['$rootScope', '$firebaseAuth', '$firebaseObject', '$firebaseArray', 'StorageService'];
+    function FirebaseService($rootscope, $firebaseAuth, $firebaseObject, $firebaseArray, StorageService) {
+        var ref = {};
+        var objects = {};
+        var enabled = false;
+        var service = {
+            initialize: initialize,
+            get: get,
+            add: add,
+            save: save,
+            remove: remove
+        };
+        
+        return service;
+
+        function initialize() {
+            var firebaseInfo = StorageService.get("firebaseInfo");
+            if (firebaseInfo) {
+                var link = "https://" + firebaseInfo.source + ".firebaseio.com/";
+                ref = new Firebase(link);
+                objects = $firebaseArray(ref);
+                enabled = true;
+            } else {
+                ref = {};
+                objects = {};
+                enabled = false;
+            }
+        }
+        ////////////////
+        function get() {
+            initialize();
+            if (enabled)
+                return objects;
+            else
+                return {};
+        }
+        
+        function add(obj) {
+            objects.$add(obj);
+        }
+        
+        function save(obj) {
+            objects.$save(obj);
+        }
+        
+        function remove(key) {
+            objects.$remove(key).then(function() {
+                console.log("removed");
+            }).catch(function(err) {
+                console.log(err);
+            });
         }
     }
 })();
@@ -159,102 +236,82 @@
 
         ////////////////
         function get(key){
-            return $localStorage.key;
+            return $localStorage[key];
         }
               
         function set(key, value){
-            $localStorage.key = value;
+            $localStorage[key] = value;
         }    
         
         function remove(key){
-            delete $localStorage.key;
+            delete $localStorage[key];
         }       
     }
 })();
-(function() {
-'use strict';
+(function () {
+    'use strict';
 
     angular
         .module('lmTodo')
         .factory('TodoService', TodoService);
 
-    TodoService.$inject = ['$q', 'UtilitiesService', 'StorageService'];
-    function TodoService($q, UtilitiesService, StorageService) {
+    TodoService.$inject = ['$q', 'UtilitiesService', 'StorageService', 'FirebaseService'];
+    function TodoService($q, UtilitiesService, StorageService, FirebaseService) {
         var service = {
-            getAll:getAll,
-            getSingleById:getSingleById,
-            save:save,
-            remove:remove
+            getAll: getAll,
+            getSingleById: getSingleById,
+            save: save,
+            remove: remove
         };
-        
+
         var todoList = [];
-        
         return service;
 
         // retrieving
-        function getAll() { 
-            return $q.when(getAllTodos());
+        function getAll() {
+            var firebaseResult = FirebaseService.get();
+            if (firebaseResult !== null) { // from service
+                todoList = firebaseResult;
+            } 
+            
+            return $q.when(todoList);
         }
         
-        function getAllTodos(){
-            var storedList = StorageService.get("list");            
-            if(storedList) {
-                todoList = storedList;
-            }
-            return todoList;
-        }
-        
-        function getSingleById(id){
-            for(var i = 0; i < todoList.length; i++){
-                if(todoList[i].id === id) return todoList[i];
+        function getSingleById(id) {
+            for (var i = 0; i < todoList.length; i++) {
+                if (todoList[i].id === id) 
+                    return todoList[i];
             }
         }
-        
-        function getIndexById(id){
-            for(var i = 0; i < todoList.length; i++){
-                if(todoList[i].id === id) return i;
+
+        function getIndexById(id) {
+            for (var i = 0; i < todoList.length; i++) {
+                if (todoList[i].id === id) 
+                    return i;
             }
         }
-        
-        // saving
-        function save(todo){            
-            if(todo.id){
-                return $q.when(updateTodo(todo));
-            }            
-            return $q.when(saveTodo(todo));
+
+        // adding/saving
+        function save(todo) {
+            if (!todo.id) {
+                todo.id = UtilitiesService.createGuid();                
+                FirebaseService.add(todo);
+            } else {
+                FirebaseService.save(todo);
+            }
+
+            return $q.when(todoList);
         }
-        
-        function saveTodo(todo){
-            var uid = UtilitiesService.createGuid();
-            todo.id = uid;
-            
-            todoList.push(todo);
-            
-            StorageService.set("list", todoList);
-        }
-        
-        function updateTodo(todo){
-            var localTodo = getSingleById(todo.id);
-            localTodo.title = todo.title;            
-            
-            StorageService.set("list", todoList);
-        }     
-        
-        // deletion
+
+        // removing
         function remove(todo) {
-            return $q.when(removeTodo(todo));
-        }
-        
-        function removeTodo(todo) {
-            var index = getIndexById(todo.id);
-            if(index > -1){
-                todoList.splice(index, 1);
-            }            
+            var index = getIndexById(todo.id);  
+            FirebaseService.remove(index);
             
-            StorageService.set("list", todoList);
-        }   
+            return $q.when(todoList);
+        }
     }
-    
+
 })();
 (function() {
 'use strict';
@@ -271,7 +328,6 @@
         
         return service;
 
-        ////////////////
         function createGuid(){
             function s4() {
                 return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -287,13 +343,30 @@
         .module('lmTodo')
         .controller('SettingsController', SettingsController);
 
-    SettingsController.$inject = [];
-    function SettingsController() {
+    SettingsController.$inject = ['StorageService'];
+    function SettingsController(StorageService) {
         var vm = this;
+        vm.firebaseToggled = false;
+        vm.firebaseObj = {};           
+
+        vm.save = save;
 
         activate();
         function activate() {
-            // this is the activate function
+            var result = StorageService.get("firebaseInfo");
+            if (result) {
+                vm.firebaseObj = result;
+                vm.firebaseToggled = true;
+            }
+        }
+
+        function save() {
+            if (vm.firebaseToggled) {
+                vm.firebaseObj.firebaseEnabled = vm.firebaseToggled;
+                StorageService.set("firebaseInfo", vm.firebaseObj);
+            } else {
+                StorageService.remove("firebaseInfo");
+            }
         }
     }
 })();
@@ -311,6 +384,7 @@
         vm.saveTodo = saveTodo;
         vm.deleteTodo = deleteTodo;
         vm.titleChanged = titleChanged;
+        vm.activate = activate;
 
         vm.workToggled = false;
         vm.canRemove = false;
@@ -321,6 +395,7 @@
         function activate() {
             if ($stateParams.todoId) {
                 vm.todoItem = TodoService.getSingleById($stateParams.todoId);
+                if(vm.todoItem.id !== $stateParams.todoId) return;
                 vm.workToggled = vm.todoItem.rel === 'work';
                 vm.canRemove = true;
                 titleChanged();
@@ -328,29 +403,24 @@
         }
 
         function saveTodo() {
-            if (!vm.todoItem.title) return;
+            if(!vm.canSave || !vm.todoItem.title) return;
 
             vm.todoItem.rel = (vm.workToggled) ? "work" : "private";
             TodoService.save(vm.todoItem).then(function () {
-                $state.transitionTo("app.home");
+                $state.go("app.home");
             });
         }
 
         function deleteTodo() {
-            console.log(vm.todoItem);
-            if (!vm.todoItem.id) return; // is not yet saved
+            if (!vm.canRemove || !vm.todoItem.id) return; // id gets defined when item is saved
 
             TodoService.remove(vm.todoItem).then(function () {
-                $state.transitionTo("app.home");
+                $state.go("app.home");
             });
         }
 
         function titleChanged() {
-            console.log("Title Changed");
-            $timeout(function () {
-                vm.canSave = vm.todoItem.title.length >= 3;
-                console.log(vm.canSave);
-            }, 0);
+            vm.canSave = vm.todoItem.title.length >= 3;
         }
     }
 })();

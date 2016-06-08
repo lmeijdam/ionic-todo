@@ -3,7 +3,8 @@
 
   angular.module('lmTodo', [
     'ionic',
-    'ngStorage'
+    'ngStorage',
+    'firebase'
   ]).run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
       if (window.cordova && window.cordova.plugins.Keyboard) {

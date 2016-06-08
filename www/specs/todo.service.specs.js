@@ -2,13 +2,11 @@ describe('TodoService', function () {
 
     var todoService,
         storageServiceMock,
+        firebaseServiceMock,
         utilitiesServiceMock;
 
     // load the module for our app
-    beforeEach(module('lmTodo'));
-
-    // disable template caching
-    beforeEach(module(function ($provide, $urlRouterProvider) {
+    beforeEach(module('lmTodo', function ($provide, $urlRouterProvider) {
         $provide.value('$ionicTemplateCache', function () { });
         $urlRouterProvider.deferIntercept();
 
@@ -20,6 +18,14 @@ describe('TodoService', function () {
             set: function (key, value) { },
             remove: function (key) { }
         };
+        
+        firebaseServiceMock = {
+            initialize: function () { },
+            get: function () { },
+            add: function (key) { },
+            save: function (key) { },
+            remove: function (key) { }
+        }
 
         utilitiesServiceMock = {
             createGuid: function () { }
@@ -27,6 +33,7 @@ describe('TodoService', function () {
 
         $provide.value('StorageService', storageServiceMock);
         $provide.value('UtilitiesService', utilitiesServiceMock);
+        $provide.value('FirebaseService', firebaseServiceMock);
     }));
 
     beforeEach(inject(function ($rootScope, $injector, $q) {
@@ -35,32 +42,31 @@ describe('TodoService', function () {
     }));
 
     describe('when calling getAll', function () {
-
-        it('should call the storageService.get function', function () {
-            spyOn(storageServiceMock, 'get');
+        it('should call the firebaseServiceMock.get function', function () {
+            spyOn(firebaseServiceMock, 'get');
             todoService.getAll();
-            expect(storageServiceMock.get).toHaveBeenCalledWith('list');
+            expect(firebaseServiceMock.get).toHaveBeenCalled();
         });
 
     });
 
     describe('when saving', function () {
 
-        it('should call the storageService.set function', function () {
-            spyOn(storageServiceMock, 'set');
+        it('should call the firebaseServiceMock.add function', function () {
+            spyOn(firebaseServiceMock, 'add');
             todoService.save({});
-            expect(storageServiceMock.set).toHaveBeenCalled();
+            expect(firebaseServiceMock.add).toHaveBeenCalled();
         });
 
     });
 
     describe('when removing a todo', function () {
 
-        it('should call the storageService.set function', function () {
-            spyOn(storageServiceMock, 'set');
+        it('should call the firebaseServiceMock.remove function', function () {
+            spyOn(firebaseServiceMock, 'remove');
             todoService.remove({});
-            expect(storageServiceMock.set).toHaveBeenCalled();
+            expect(firebaseServiceMock.remove).toHaveBeenCalled();
         });
 
-    });
+    }); 
 });

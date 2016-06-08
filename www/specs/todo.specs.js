@@ -15,11 +15,8 @@ describe('Todo', function () {
         $provide.value('$ionicTemplateCache', function () { });
         $urlRouterProvider.deferIntercept();
     }));
-
-    describe('Adding', function () {
-
-        // instantiate the controller and mocks for every test
-        beforeEach(inject(function ($rootScope, $controller, $injector, $q) {
+    
+    beforeEach(inject(function ($rootScope, $controller, $injector, $q) {
             scope = $rootScope.$new();
             deferred = $q.defer();
             todoServiceMock = {
@@ -47,6 +44,8 @@ describe('Todo', function () {
                 'TodoService': todoServiceMock,
             });
         }));
+
+    describe('Adding', function () {
 
         describe('when navigating to the Todo view without params', function () {
 
@@ -94,23 +93,6 @@ describe('Todo', function () {
                 controller.todoItem = todoServiceMock.getSingleById();
                 expect(stateParams.todoId).toEqual(controller.todoItem.id);
             });            
-            
-            // it('should update the vm.todoItem', function () {
-            //     expect(controller.workToggled).toBe(true);
-            // });
-
-
-
-            // if ($stateParams.todoId) {
-            //     vm.todoItem = TodoService.getSingleById($stateParams.todoId);
-            //     if (vm.todoItem.id !== $stateParams.todoId) return;
-            //     vm.workToggled = vm.todoItem.rel === 'work';
-            //     vm.canRemove = true;
-            //     titleChanged();
-            // }
-
-
-
         });
 
         describe('when changing the title', function () {
